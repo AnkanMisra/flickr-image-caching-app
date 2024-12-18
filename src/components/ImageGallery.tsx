@@ -20,36 +20,26 @@ interface Photo {
   url_s: string;
 }
 
-// ImageCard Component for better performance
-interface ImageCardProps {
-  photo: Photo;
-  onImagePress: (url: string) => void;
-  onDownload: (url: string) => void;
-}
-
-const ImageCard = memo(
-  ({ photo, onImagePress, onDownload }: ImageCardProps) => (
-    <View style={styles.card}>
-      <TouchableOpacity onPress={() => onImagePress(photo.url_s)}>
-        <FastImage
-          source={{
-            uri: photo.url_s,
-            priority: FastImage.priority.normal, // Lazy load
-            cache: FastImage.cacheControl.immutable, // Cache for performance
-          }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.downloadButton}
-        onPress={() => onDownload(photo.url_s)}
-      >
-        <Text style={styles.downloadText}>Download</Text>
-      </TouchableOpacity>
-    </View>
-  )
-);
+// Memoized Image Card Component
+const ImageCard = memo(({ photo, onImagePress, onDownload }: any) => (
+  <View style={styles.card}>
+    <TouchableOpacity onPress={() => onImagePress(photo.url_s)}>
+      <FastImage
+        source={{
+          uri: photo.url_s,
+        }}
+        style={styles.image}
+        resizeMode="cover"
+      />
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.downloadButton}
+      onPress={() => onDownload(photo.url_s)}
+    >
+      <Text style={styles.downloadText}>Download</Text>
+    </TouchableOpacity>
+  </View>
+));
 
 const ImageGallery: React.FC = () => {
   const [images, setImages] = useState<Photo[]>([]);
@@ -210,10 +200,7 @@ const ImageGallery: React.FC = () => {
           </TouchableOpacity>
           {selectedImage && (
             <FastImage
-              source={{
-                uri: selectedImage,
-                cache: FastImage.cacheControl.immutable,
-              }}
+              source={{ uri: selectedImage }}
               style={styles.modalImage}
               resizeMode="contain"
             />
