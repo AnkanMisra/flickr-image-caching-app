@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Define interface for Flickr photo
 interface FlickrPhoto {
@@ -9,15 +9,15 @@ interface FlickrPhoto {
 
 // Flickr API configuration
 const FLICKR_CONFIG = {
-  BASE_URL: 'https://api.flickr.com/services/rest/',
-  API_KEY: '6f102c62f41998d151e5a1b48713cf13',
+  BASE_URL: "https://api.flickr.com/services/rest/",
+  API_KEY: "6f102c62f41998d151e5a1b48713cf13", // Directly include API Key here
   DEFAULT_PARAMS: {
-    method: 'flickr.photos.getRecent',
-    format: 'json',
+    method: "flickr.photos.getRecent",
+    format: "json",
     nojsoncallback: 1,
-    extras: 'url_s',
+    extras: "url_s",
     per_page: 20,
-  }
+  },
 };
 
 /**
@@ -35,22 +35,23 @@ export const fetchRecentImages = async (page: number = 1): Promise<FlickrPhoto[]
       },
     });
 
-    // Filter out photos without small URL
-    return response.data.photos.photo.filter((photo: FlickrPhoto) => 
-      photo.url_s && photo.id
-    );
-  } catch (error) {
-    // Enhanced error logging
-    if (axios.isAxiosError(error)) {
-      console.error('Flickr API Error:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data
-      });
+    console.log("Flickr API Response:", response.data);
+
+    // Validate and filter response structure
+    if (
+      response.data &&
+      response.data.photos &&
+      Array.isArray(response.data.photos.photo)
+    ) {
+      return response.data.photos.photo.filter((photo: FlickrPhoto) => 
+        photo.url_s && photo.id
+      );
     } else {
-      console.error('Unexpected error fetching images:', error);
+      console.error("Unexpected response structure:", response.data);
+      return [];
     }
-    
+  } catch (error) {
+    console.error("Error fetching images:", error);
     return [];
   }
 };
