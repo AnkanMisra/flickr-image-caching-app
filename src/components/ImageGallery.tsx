@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, memo } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
-  Button,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FastImage from "expo-fast-image";
@@ -21,6 +20,37 @@ interface Photo {
   url_s: string;
 }
 
+// ImageCard Component for better performance
+interface ImageCardProps {
+  photo: Photo;
+  onImagePress: (url: string) => void;
+  onDownload: (url: string) => void;
+}
+
+const ImageCard = memo(
+  ({ photo, onImagePress, onDownload }: ImageCardProps) => (
+    <View style={styles.card}>
+      <TouchableOpacity onPress={() => onImagePress(photo.url_s)}>
+        <FastImage
+          source={{
+            uri: photo.url_s,
+            priority: FastImage.priority.normal, // Lazy load
+            cache: FastImage.cacheControl.immutable, // Cache for performance
+          }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.downloadButton}
+        onPress={() => onDownload(photo.url_s)}
+      >
+        <Text style={styles.downloadText}>Download</Text>
+      </TouchableOpacity>
+    </View>
+  )
+);
+
 const ImageGallery: React.FC = () => {
   const [images, setImages] = useState<Photo[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -31,6 +61,7 @@ const ImageGallery: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // Fetch images with caching
   const loadImages = useCallback(
     async (currentPage: number, isRefresh: boolean = false) => {
       if (!hasMore && !isRefresh) return;
@@ -39,9 +70,7 @@ const ImageGallery: React.FC = () => {
       try {
         if (currentPage === 1) {
           const cachedData = await AsyncStorage.getItem("cachedImages");
-          if (cachedData) {
-            setImages(JSON.parse(cachedData));
-          }
+          if (cachedData) setImages(JSON.parse(cachedData));
         }
 
         const fetchedImages = await fetchRecentImages(currentPage);
@@ -74,10 +103,12 @@ const ImageGallery: React.FC = () => {
     [hasMore]
   );
 
+  // Load initial images
   useEffect(() => {
     loadImages(1);
   }, [loadImages]);
 
+  // Load more images for pagination
   const loadMore = () => {
     if (!loading && hasMore) {
       const nextPage = page + 1;
@@ -86,6 +117,7 @@ const ImageGallery: React.FC = () => {
     }
   };
 
+  // Pull-to-refresh handler
   const refreshImages = () => {
     setRefreshing(true);
     setPage(1);
@@ -93,6 +125,7 @@ const ImageGallery: React.FC = () => {
     loadImages(1, true);
   };
 
+  // Modal handlers
   const openModal = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setModalVisible(true);
@@ -103,6 +136,7 @@ const ImageGallery: React.FC = () => {
     setSelectedImage(null);
   };
 
+  // Download image functionality
   const downloadImage = async (imageUrl: string) => {
     try {
       const fileUri = `${FileSystem.documentDirectory}image_${Date.now()}.jpg`;
@@ -119,30 +153,8 @@ const ImageGallery: React.FC = () => {
     }
   };
 
-  const renderItem = ({ item }: { item: Photo }) => (
-    <View style={styles.card}>
-      <TouchableOpacity onPress={() => openModal(item.url_s)}>
-        <FastImage
-          source={{ uri: item.url_s }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.downloadButton}
-        onPress={() => downloadImage(item.url_s)}
-      >
-        <Text style={styles.downloadText}>Download</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Image Gallery</Text>
-      </View>
-
       {error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
@@ -154,24 +166,33 @@ const ImageGallery: React.FC = () => {
         <FlatList
           data={images}
           keyExtractor={(item, index) => `${item.id}-${index}`}
-          renderItem={renderItem}
+          renderItem={({ item }) => (
+            <ImageCard
+              photo={item}
+              onImagePress={openModal}
+              onDownload={downloadImage}
+            />
+          )}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
           refreshing={refreshing}
           onRefresh={refreshImages}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          getItemLayout={(_, index) => ({
+            length: 250, // Approximate card height
+            offset: 250 * index,
+            index,
+          })}
           ListFooterComponent={
-            loading && (
+            loading ? (
               <ActivityIndicator
                 size="large"
                 color="#007BFF"
                 style={styles.loadingIndicator}
               />
-            )
-          }
-          ListEmptyComponent={
-            !loading && (
-              <Text style={styles.emptyText}>No images available</Text>
-            )
+            ) : null
           }
         />
       )}
@@ -189,17 +210,14 @@ const ImageGallery: React.FC = () => {
           </TouchableOpacity>
           {selectedImage && (
             <FastImage
-              source={{ uri: selectedImage }}
+              source={{
+                uri: selectedImage,
+                cache: FastImage.cacheControl.immutable,
+              }}
               style={styles.modalImage}
               resizeMode="contain"
             />
           )}
-          <Button
-            title="Download Image"
-            onPress={() => {
-              if (selectedImage) downloadImage(selectedImage);
-            }}
-          />
         </View>
       </Modal>
     </View>
@@ -208,13 +226,6 @@ const ImageGallery: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f5f5f5" },
-  header: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 15,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  headerText: { color: "#fff", fontSize: 20, fontWeight: "bold" },
   card: {
     marginHorizontal: 10,
     marginBottom: 10,
@@ -234,7 +245,6 @@ const styles = StyleSheet.create({
   errorText: { color: "red", fontSize: 16, marginBottom: 10 },
   retryText: { color: "#007BFF", textDecorationLine: "underline" },
   loadingIndicator: { marginVertical: 20 },
-  emptyText: { textAlign: "center", marginTop: 20, color: "#555" },
   modalContainer: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.9)",
