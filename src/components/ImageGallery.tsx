@@ -9,9 +9,9 @@ import {
   Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FastImage from "expo-fast-image";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import { Image } from "expo-image"; // For optimized image rendering
 import { fetchRecentImages } from "../api/flickr";
 
 // Photo type definition
@@ -20,26 +20,33 @@ interface Photo {
   url_s: string;
 }
 
-// Memoized Image Card Component
-const ImageCard = memo(({ photo, onImagePress, onDownload }: any) => (
-  <View style={styles.card}>
-    <TouchableOpacity onPress={() => onImagePress(photo.url_s)}>
-      <FastImage
-        source={{
-          uri: photo.url_s,
-        }}
-        style={styles.image}
-        resizeMode="cover"
-      />
-    </TouchableOpacity>
-    <TouchableOpacity
-      style={styles.downloadButton}
-      onPress={() => onDownload(photo.url_s)}
-    >
-      <Text style={styles.downloadText}>Download</Text>
-    </TouchableOpacity>
-  </View>
-));
+// ImageCard Component for better performance
+interface ImageCardProps {
+  photo: Photo;
+  onImagePress: (url: string) => void;
+  onDownload: (url: string) => void;
+}
+
+const ImageCard = memo(
+  ({ photo, onImagePress, onDownload }: ImageCardProps) => (
+    <View style={styles.card}>
+      <TouchableOpacity onPress={() => onImagePress(photo.url_s)}>
+        <Image
+          source={{ uri: photo.url_s }}
+          style={styles.image}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.downloadButton}
+        onPress={() => onDownload(photo.url_s)}
+      >
+        <Text style={styles.downloadText}>Download</Text>
+      </TouchableOpacity>
+    </View>
+  )
+);
 
 const ImageGallery: React.FC = () => {
   const [images, setImages] = useState<Photo[]>([]);
@@ -171,7 +178,7 @@ const ImageGallery: React.FC = () => {
           maxToRenderPerBatch={10}
           windowSize={5}
           getItemLayout={(_, index) => ({
-            length: 250, // Approximate card height
+            length: 250,
             offset: 250 * index,
             index,
           })}
@@ -199,10 +206,11 @@ const ImageGallery: React.FC = () => {
             <Text style={styles.closeText}>Close</Text>
           </TouchableOpacity>
           {selectedImage && (
-            <FastImage
+            <Image
               source={{ uri: selectedImage }}
               style={styles.modalImage}
-              resizeMode="contain"
+              contentFit="contain"
+              cachePolicy="memory-disk"
             />
           )}
         </View>
