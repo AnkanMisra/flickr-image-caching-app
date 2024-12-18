@@ -6,14 +6,16 @@ import {
   ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
-  Alert,
+  Modal,
+  Button,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FastImage from "expo-fast-image";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import FastImage from "expo-fast-image";
 import { fetchRecentImages } from "../api/flickr";
 
+// Photo type definition
 interface Photo {
   id: string;
   url_s: string;
@@ -26,6 +28,8 @@ const ImageGallery: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const loadImages = useCallback(
     async (currentPage: number, isRefresh: boolean = false) => {
@@ -35,11 +39,12 @@ const ImageGallery: React.FC = () => {
       try {
         if (currentPage === 1) {
           const cachedData = await AsyncStorage.getItem("cachedImages");
-          if (cachedData) setImages(JSON.parse(cachedData));
+          if (cachedData) {
+            setImages(JSON.parse(cachedData));
+          }
         }
 
         const fetchedImages = await fetchRecentImages(currentPage);
-
         if (fetchedImages.length === 0) {
           setHasMore(false);
           return;
@@ -88,31 +93,41 @@ const ImageGallery: React.FC = () => {
     loadImages(1, true);
   };
 
-  const downloadImage = async (url: string) => {
-    try {
-      const fileName = url.split("/").pop();
-      const fileUri = FileSystem.documentDirectory + fileName;
+  const openModal = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+    setModalVisible(true);
+  };
 
-      const { uri } = await FileSystem.downloadAsync(url, fileUri);
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedImage(null);
+  };
+
+  const downloadImage = async (imageUrl: string) => {
+    try {
+      const fileUri = `${FileSystem.documentDirectory}image_${Date.now()}.jpg`;
+      const result = await FileSystem.downloadAsync(imageUrl, fileUri);
 
       if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri);
+        await Sharing.shareAsync(result.uri);
       } else {
-        Alert.alert("Download Complete", "Image saved to: " + uri);
+        alert("Sharing is not available on this device.");
       }
-    } catch (err) {
-      console.error("Error downloading image:", err);
-      Alert.alert("Error", "Failed to download the image. Try again.");
+    } catch (error) {
+      console.error("Error downloading the image:", error);
+      alert("Failed to download the image.");
     }
   };
 
   const renderItem = ({ item }: { item: Photo }) => (
     <View style={styles.card}>
-      <FastImage
-        source={{ uri: item.url_s }}
-        style={styles.image}
-        resizeMode="cover"
-      />
+      <TouchableOpacity onPress={() => openModal(item.url_s)}>
+        <FastImage
+          source={{ uri: item.url_s }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
       <TouchableOpacity
         style={styles.downloadButton}
         onPress={() => downloadImage(item.url_s)}
@@ -122,105 +137,113 @@ const ImageGallery: React.FC = () => {
     </View>
   );
 
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <Text style={styles.retryText} onPress={() => loadImages(1)}>
-          Retry
-        </Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Image Gallery</Text>
       </View>
-      <FlatList
-        data={images}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
-        renderItem={renderItem}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        refreshing={refreshing}
-        onRefresh={refreshImages}
-        ListFooterComponent={
-          loading ? <ActivityIndicator size="large" color="#007BFF" /> : null
-        }
-        ListEmptyComponent={
-          !loading && <Text style={styles.emptyText}>No images available</Text>
-        }
-      />
+
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.retryText} onPress={() => loadImages(1)}>
+            Retry
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={images}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          renderItem={renderItem}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          refreshing={refreshing}
+          onRefresh={refreshImages}
+          ListFooterComponent={
+            loading && (
+              <ActivityIndicator
+                size="large"
+                color="#007BFF"
+                style={styles.loadingIndicator}
+              />
+            )
+          }
+          ListEmptyComponent={
+            !loading && (
+              <Text style={styles.emptyText}>No images available</Text>
+            )
+          }
+        />
+      )}
+
+      {/* Image Preview Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+            <Text style={styles.closeText}>Close</Text>
+          </TouchableOpacity>
+          {selectedImage && (
+            <FastImage
+              source={{ uri: selectedImage }}
+              style={styles.modalImage}
+              resizeMode="contain"
+            />
+          )}
+          <Button
+            title="Download Image"
+            onPress={() => {
+              if (selectedImage) downloadImage(selectedImage);
+            }}
+          />
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-  },
+  container: { flex: 1, backgroundColor: "#f5f5f5" },
   header: {
     backgroundColor: "#007BFF",
     paddingVertical: 15,
     alignItems: "center",
     marginBottom: 10,
   },
-  headerText: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "bold",
-  },
+  headerText: { color: "#fff", fontSize: 20, fontWeight: "bold" },
   card: {
-    backgroundColor: "#fff",
     marginHorizontal: 10,
-    marginBottom: 15,
-    borderRadius: 12,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+    borderRadius: 8,
     overflow: "hidden",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    elevation: 3,
   },
-  image: {
-    width: "100%",
-    height: 250,
-  },
+  image: { width: "100%", height: 200 },
   downloadButton: {
-    backgroundColor: "#28A745",
-    paddingVertical: 10,
+    backgroundColor: "#007BFF",
+    paddingVertical: 8,
     alignItems: "center",
   },
-  downloadText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  errorContainer: {
+  downloadText: { color: "#fff", fontWeight: "bold" },
+  errorContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  errorText: { color: "red", fontSize: 16, marginBottom: 10 },
+  retryText: { color: "#007BFF", textDecorationLine: "underline" },
+  loadingIndicator: { marginVertical: 20 },
+  emptyText: { textAlign: "center", marginTop: 20, color: "#555" },
+  modalContainer: {
     flex: 1,
+    backgroundColor: "rgba(0,0,0,0.9)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
-  errorText: {
-    color: "red",
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  retryText: {
-    color: "#007BFF",
-    fontSize: 16,
-    textDecorationLine: "underline",
-  },
-  emptyText: {
-    textAlign: "center",
-    fontSize: 18,
-    color: "#555",
-    marginTop: 20,
-  },
+  modalImage: { width: "90%", height: "80%" },
+  closeButton: { position: "absolute", top: 40, right: 20 },
+  closeText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
 });
 
 export default ImageGallery;
