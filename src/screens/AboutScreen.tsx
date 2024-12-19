@@ -89,7 +89,7 @@ const AboutScreen: React.FC = () => {
             accessibilityLabel="View my LeetCode Profile"
           >
             <Image
-              source={require("../../assets/images/leetcode.png")} // Ensure this path is correct
+              source={require("../../assets/images/hehe.png")} // Ensure this path is correct
               style={styles.leetcodeIcon}
             />
             <Text style={styles.linkText}>LeetCode Profile</Text>
