@@ -1,16 +1,16 @@
 import axios from "axios";
 
-// Define interface for Flickr photo
+//Makes the Interface
 interface FlickrPhoto {
   id: string;
   url_s?: string;
   title?: string;
 }
 
-// Flickr API configuration
+// Flickr API config
 const FLICKR_CONFIG = {
   BASE_URL: "https://api.flickr.com/services/rest/",
-  API_KEY: "6f102c62f41998d151e5a1b48713cf13", // Directly include API Key here
+  API_KEY: "6f102c62f41998d151e5a1b48713cf13", //Api key
   DEFAULT_PARAMS: {
     method: "flickr.photos.getRecent",
     format: "json",
@@ -21,8 +21,8 @@ const FLICKR_CONFIG = {
 };
 
 /**
- * Fetch recent images from Flickr API
- * @param page - Page number for pagination (default: 1)
+ * Fetch recent images from Flickr Api
+ * @param page - Page number for pagination 
  * @returns Promise of filtered photo array
  */
 export const fetchRecentImages = async (page: number = 1): Promise<FlickrPhoto[]> => {
@@ -37,7 +37,7 @@ export const fetchRecentImages = async (page: number = 1): Promise<FlickrPhoto[]
 
     console.log("Flickr API Response:", response.data);
 
-    // Validate and filter response structure
+    // Validate with filter the response structure
     if (
       response.data &&
       response.data.photos &&

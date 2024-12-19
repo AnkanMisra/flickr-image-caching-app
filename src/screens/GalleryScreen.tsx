@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, SafeAreaView } from "react-native";
-import ImageGallery from "../components/ImageGallery"; // Adjust path if needed
-
+import ImageGallery from "../components/ImageGallery";
 const GalleryScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>

@@ -9,29 +9,28 @@ import {
   Modal,
   Platform,
   Alert,
-  useWindowDimensions, // Import the hook
+  useWindowDimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import { Image as ExpoImage } from "expo-image"; // For optimized image rendering on mobile
+import { Image as ExpoImage } from "expo-image";
 import { fetchRecentImages } from "../api/flickr";
-import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for the reload icon
-import { Image as RNImage, StyleProp, ImageStyle } from "react-native"; // Standard Image for web fallback
+import { Ionicons } from "@expo/vector-icons";
+import { Image as RNImage, StyleProp, ImageStyle } from "react-native";
 
-// Define breakpoints for responsive design
 const getNumberOfColumns = (screenWidth: number) => {
-  if (screenWidth >= 1200) return 5; // Desktop
-  if (screenWidth >= 992) return 4; // Large Tablet
-  if (screenWidth >= 768) return 3; // Small Tablet
-  return 2; // Mobile
+  if (screenWidth >= 1200) return 5;
+  if (screenWidth >= 992) return 4;
+  if (screenWidth >= 768) return 3;
+  return 2;
 };
 
-// Photo type definition
+// Photo type def
 interface Photo {
   id: string;
   url_s: string;
-  title: string; // Added title field
+  title: string;
 }
 
 // ImageComponent Props Interface
@@ -106,7 +105,7 @@ const ImageGallery: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<Photo | null>(null);
 
-  const { width: screenWidth } = useWindowDimensions(); // Use the hook
+  const { width: screenWidth } = useWindowDimensions();
   const [numColumns, setNumColumns] = useState<number>(
     getNumberOfColumns(screenWidth)
   );
@@ -194,14 +193,14 @@ const ImageGallery: React.FC = () => {
             text: "Reload",
             style: "destructive",
             onPress: async () => {
-              // Clear cached images
+              // Clears the cached images
               await AsyncStorage.removeItem("cachedImages");
-              // Reset state
+              // Resets da state
               setImages([]);
               setPage(1);
               setHasMore(true);
               setError(null);
-              // Fetch new images
+              // Fetchs new images
               loadImages(1, true);
             },
           },
@@ -238,10 +237,9 @@ const ImageGallery: React.FC = () => {
   // Download image functionality
   const downloadImage = async (imageUrl: string) => {
     if (Platform.OS === "web") {
-      // For web, create a temporary anchor element to trigger download
       const link = document.createElement("a");
       link.href = imageUrl;
-      link.download = `image_${Date.now()}.jpg`; // You can set a default filename or derive from the URL
+      link.download = `image_${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -277,7 +275,7 @@ const ImageGallery: React.FC = () => {
         onPress={reloadGallery}
         accessibilityLabel="Reload Gallery"
         accessible={true}
-        activeOpacity={0.7} // Provides feedback by changing opacity on press
+        activeOpacity={0.7}
       >
         <Ionicons
           name="reload-outline"
@@ -407,7 +405,7 @@ const styles = StyleSheet.create({
     shadowOpacity: Platform.OS === "web" ? 0.3 : 0.1,
     shadowRadius: Platform.OS === "web" ? 4 : 3.84,
     elevation: Platform.OS === "web" ? 5 : 4,
-    // Transition for hover effect on web
+    // Transition for hover effect
     ...(Platform.OS === "web" && {
       transition: "transform 0.2s, box-shadow 0.2s",
       ":hover": {
@@ -561,7 +559,7 @@ const styles = StyleSheet.create({
     shadowOpacity: Platform.OS === "web" ? 0.3 : 0.1,
     shadowRadius: Platform.OS === "web" ? 4 : 3.84,
     elevation: Platform.OS === "web" ? 5 : 4,
-    // Hover effect for web
+    // Hover effect for da web
     ...(Platform.OS === "web" && {
       ":hover": {
         transform: [{ scale: 1.05 }],

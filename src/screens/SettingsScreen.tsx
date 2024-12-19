@@ -8,12 +8,12 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // For icons
-import styles from "./styles/SettingsScreen"; // Ensure the correct path
+import Icon from "react-native-vector-icons/Ionicons";
+import styles from "./styles/SettingsScreen";
 
 const SettingsScreen: React.FC = () => {
   const [notifications, setNotifications] = useState(true);
-  const [scaleValue] = useState(new Animated.Value(1)); // Animation state for scaling effect
+  const [scaleValue] = useState(new Animated.Value(1));
 
   const animatePressIn = () => {
     Animated.timing(scaleValue, {

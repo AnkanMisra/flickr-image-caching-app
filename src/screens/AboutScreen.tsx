@@ -1,5 +1,3 @@
-// screens/AboutScreen.tsx
-
 import React from "react";
 import {
   View,
@@ -11,7 +9,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome"; // Icons for LinkedIn and GitHub
+import Icon from "react-native-vector-icons/FontAwesome";
 import styles from "./styles/AboutScreens";
 
 const AboutScreen: React.FC = () => {

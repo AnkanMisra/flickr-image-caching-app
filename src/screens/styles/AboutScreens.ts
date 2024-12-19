@@ -1,9 +1,5 @@
-// styles/AboutScreens.ts
-
 import { StyleSheet, Dimensions } from "react-native";
-
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -21,7 +17,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 28, // Adjusted for better readability
+    fontSize: 28, 
     fontWeight: "700",
     color: "#1E90FF",
     textAlign: "center",
@@ -39,8 +35,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     marginBottom: 30,
-    width: SCREEN_WIDTH * 0.9, // 90% of screen width for responsiveness
-    alignItems: "center", // Centers content horizontally
+    width: SCREEN_WIDTH * 0.9, 
+    alignItems: "center", 
   },
   description: {
     fontSize: 18,
@@ -54,14 +50,14 @@ const styles = StyleSheet.create({
     color: "#1E90FF",
   },
   list: {
-    width: "100%", // Ensures the list takes full width of the card
-    alignItems: "center", // Centers the list items horizontally
+    width: "100%", 
+    alignItems: "center", 
     marginVertical: 10,
   },
   listItem: {
     fontSize: 17,
     color: "#007BFF",
-    textAlign: "center", // Centers the text within each list item
+    textAlign: "center", 
     marginVertical: 5,
     fontStyle: "italic",
   },
@@ -76,7 +72,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 14,
     paddingHorizontal: 25,
-    backgroundColor: "#0077B5", // LinkedIn Blue
+    backgroundColor: "#0077B5", 
     borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -95,7 +91,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 14,
     paddingHorizontal: 25,
-    backgroundColor: "#333333", // GitHub Black
+    backgroundColor: "#333333", 
     borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -114,7 +110,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 14,
     paddingHorizontal: 25,
-    backgroundColor: "#FFA500", // LeetCode Orange
+    backgroundColor: "#FFA500", 
     borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },

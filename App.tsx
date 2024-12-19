@@ -4,31 +4,28 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
 
-// Importing Screens
+//All da Screens
 import HomeScreen from "./src/screens/HomeScreen";
 import GalleryScreen from "./src/screens/GalleryScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import AboutScreen from "./src/screens/AboutScreen";
 
-// Navigation
+// Nav
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
-// Bottom Tab Navigator
+// Bottom Tab Nav
 const TabNavigator = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
       headerShown: false,
       tabBarIcon: ({ color, size }) => {
-        let iconName: string = "help-outline"; // Default icon
-
+        let iconName: string = "help-outline";
         if (route.name === "Home") {
           iconName = "home-outline";
         } else if (route.name === "Gallery") {
           iconName = "images-outline";
         }
-
-        // Ensure iconName is always defined
         return <Icon name={iconName} size={size} color={color} />;
       },
       tabBarActiveTintColor: "#007BFF",
@@ -40,7 +37,7 @@ const TabNavigator = () => (
   </Tab.Navigator>
 );
 
-// Drawer Navigator
+// Drawer Nav
 const DrawerNavigator = () => (
   <Drawer.Navigator
     screenOptions={({ route }) => ({
@@ -61,9 +58,8 @@ const DrawerNavigator = () => (
       },
       drawerIcon: ({ color, size }) => {
         // Assign default value to iconName
-        let iconName: string = "help-outline"; // Default icon
+        let iconName: string = "help-outline";
 
-        // Conditionally set the icon based on route.name
         if (route.name === "Main") {
           iconName = "home-outline";
         } else if (route.name === "Settings") {
@@ -82,7 +78,6 @@ const DrawerNavigator = () => (
   </Drawer.Navigator>
 );
 
-// App Component
 const App = () => {
   return (
     <NavigationContainer>
