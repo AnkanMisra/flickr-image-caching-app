@@ -9,7 +9,8 @@ const HomeScreen: React.FC = () => {
       <View style={styles.textContainer}>
         <Text style={styles.title}>Welcome to the Image Gallery App</Text>
         <Text style={styles.subtitle}>
-          Explore stunning visuals, organized beautifully for you.
+          Discover a world of stunning visuals, dynamically curated and
+          beautifully organized for you.
         </Text>
       </View>
     </View>
