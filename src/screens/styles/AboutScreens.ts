@@ -1,19 +1,27 @@
-import { StyleSheet } from "react-native";
+// styles/AboutScreens.ts
+
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#e9eff7",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "flex-start",
+    alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingVertical: 30,
   },
   header: {
     marginBottom: 30,
+    alignItems: "center",
   },
   title: {
-    fontSize: 36,
+    fontSize: 28, // Adjusted for better readability
     fontWeight: "700",
     color: "#1E90FF",
     textAlign: "center",
@@ -27,11 +35,12 @@ const styles = StyleSheet.create({
     padding: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
-    marginBottom: 20,
-    width: "100%",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    marginBottom: 30,
+    width: SCREEN_WIDTH * 0.9, // 90% of screen width for responsiveness
+    alignItems: "center", // Centers content horizontally
   },
   description: {
     fontSize: 18,
@@ -44,12 +53,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1E90FF",
   },
+  list: {
+    width: "100%", // Ensures the list takes full width of the card
+    alignItems: "center", // Centers the list items horizontally
+    marginVertical: 10,
+  },
   listItem: {
     fontSize: 17,
     color: "#007BFF",
-    textAlign: "center",
+    textAlign: "center", // Centers the text within each list item
     marginVertical: 5,
     fontStyle: "italic",
+  },
+  buttonContainer: {
+    width: "100%",
+    alignItems: "center",
   },
   linkedinButton: {
     flexDirection: "row",
@@ -58,7 +76,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 14,
     paddingHorizontal: 25,
-    backgroundColor: "#007BFF", // Blue for LinkedIn
+    backgroundColor: "#0077B5", // LinkedIn Blue
     borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -66,7 +84,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,
-    borderColor: "#0056b3",
+    borderColor: "#005582",
+    width: "100%",
+    maxWidth: 350,
   },
   githubButton: {
     flexDirection: "row",
@@ -75,7 +95,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 14,
     paddingHorizontal: 25,
-    backgroundColor: "#000", // Black for GitHub
+    backgroundColor: "#333333", // GitHub Black
     borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -83,7 +103,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,
-    borderColor: "#333", // Slightly lighter black border
+    borderColor: "#1a1a1a",
+    width: "100%",
+    maxWidth: 350,
   },
   leetcodeButton: {
     flexDirection: "row",
@@ -92,7 +114,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 14,
     paddingHorizontal: 25,
-    backgroundColor: "rgba(255, 165, 0, 0.7)", // Orange for LeetCode
+    backgroundColor: "#FFA500", // LeetCode Orange
     borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -100,7 +122,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,
-    borderColor: "black", // Slightly darker orange border
+    borderColor: "#FF8C00",
+    width: "100%",
+    maxWidth: 350,
   },
   leetcodeIcon: {
     width: 20,
