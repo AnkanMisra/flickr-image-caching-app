@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Linking } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Icons for LinkedIn and GitHub
-import styles from "./AboutScreens";
+import styles from "./styles/AboutScreens";
 
 const AboutScreen: React.FC = () => {
   const openLinkedIn = () => {
